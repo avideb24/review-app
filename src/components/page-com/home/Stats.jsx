@@ -1,10 +1,15 @@
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useReviews } from "../../../provider/ReviewProvider";
 
 const COLORS = ["#005555", "#e74c3c", "#f1c40f"];
 
-const Stats = ({ reviews }) => {
-  const totalReviews = reviews.length;
+
+const Stats = () => {
+  
+  const { reviews } = useReviews();
+  
+  const totalReviews = reviews?.length || 0;
   const averageRating =
     totalReviews > 0
       ? (
@@ -12,7 +17,7 @@ const Stats = ({ reviews }) => {
           totalReviews
         ).toFixed(1)
       : 0;
-  const uniqueShops = new Set(reviews.map((review) => review.shopName)).size;
+  const uniqueShops = new Set(reviews?.map((review) => review.shopName) || []).size;
 
   const statsData = [
     { label: "Total Reviews", value: totalReviews, color: COLORS[0] },
@@ -23,7 +28,7 @@ const Stats = ({ reviews }) => {
   const renderPie = (value, color, label) => {
     const data = [
       { name: label, value },
-      { name: "Remaining", value: Math.max(1, value === 0 ? 1 : 0) }, // filler to make circle
+      { name: "Remaining", value: Math.max(1, value === 0 ? 1 : 0) },
     ];
     return (
       <div className="flex flex-col items-center">

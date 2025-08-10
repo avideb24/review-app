@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useReviews } from '../provider/ReviewProvider';
 import ReviewForm from '../components/reusuable/ReviewForm';
 import ReviewCard from '../components/reusuable/ReviewCard';
 import SearchFilter from '../components/reusuable/SearchFilter';
@@ -9,36 +9,25 @@ import Hero from '../components/page-com/home/Hero';
 
 export default function Home() {
 
-    const [reviews, setReviews] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-
-    // Load reviews from localStorage on component mount
-    useEffect(() => {
-        const savedReviews = localStorage.getItem('shopReviews');
-        if (savedReviews) {
-            setReviews(JSON.parse(savedReviews));
-        }
-    }, []);
-
-    // Save reviews to localStorage whenever reviews change
-    useEffect(() => {
-        localStorage.setItem('shopReviews', JSON.stringify(reviews));
-    }, [reviews]);
+    const {
+        filteredReviews,
+        searchTerm,
+        addReview,
+        updateReview,
+        deleteReview,
+        setSearchTerm,
+        reviews,
+        isLoading
+    } = useReviews();
 
     // Handle new review submission
     const handleSubmitReview = (newReview) => {
-        setReviews(prevReviews => [newReview, ...prevReviews]);
+        addReview(newReview);
     };
 
     // Handle review editing
     const handleEditReview = (reviewId, updatedData) => {
-        setReviews(prevReviews =>
-            prevReviews.map(review =>
-                review.id === reviewId
-                    ? { ...review, ...updatedData, date: new Date().toISOString() }
-                    : review
-            )
-        );
+        updateReview(reviewId, updatedData);
     };
 
     // Handle review deletion
@@ -53,9 +42,7 @@ export default function Home() {
             confirmButtonText: "Delete",
         }).then((result) => {
             if (result.isConfirmed) {
-                setReviews(prevReviews =>
-                    prevReviews.filter(review => review.id !== reviewId)
-                );
+                deleteReview(reviewId);
                 Swal.fire({
                     position: "top-end",
                     icon: "success",
@@ -67,10 +54,14 @@ export default function Home() {
         });
     };
 
-    // Filter reviews based on search term
-    const filteredReviews = reviews.filter(review =>
-        review.shopName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Show loading state while data is being initialized
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="text-lg">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -83,15 +74,16 @@ export default function Home() {
                 {/* Review Form */}
                 <ReviewForm onSubmit={handleSubmitReview} />
 
+                {/* Seach filter */}
                 <SearchFilter
                     searchTerm={searchTerm}
                     onSearchChange={setSearchTerm}
-                    totalReviews={filteredReviews.length}
+                    totalReviews={filteredReviews?.length || 0}
                 />
 
                 {/* Reviews Section */}
                 <div className="space-y-6">
-                    {filteredReviews.length > 0 ?
+                    {filteredReviews && filteredReviews.length > 0 ?
                         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
                             {
                                 filteredReviews.map(review => (
@@ -104,7 +96,7 @@ export default function Home() {
                                 ))
                             }
                         </div>
-                        : reviews.length > 0 ? (
+                        : reviews && reviews.length > 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-gray-400 text-6xl mb-4">🔍</div>
                                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
@@ -122,7 +114,7 @@ export default function Home() {
                 </div>
 
                 {/* Stats Section */}
-                <Stats reviews={reviews} />
+                <Stats />
             </div>
         </div>
     );
