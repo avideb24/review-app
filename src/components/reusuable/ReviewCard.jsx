@@ -44,7 +44,7 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
         <div className="card break-all">
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">{review.shopName}</h3>
+                    <h3 className="text-lg font-semibold mb-1">{review.shopName}</h3>
                     <div className="flex items-center gap-2">
                         <StarRatings
                             rating={review.rating}
@@ -55,7 +55,7 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
                             starDimension="20px"
                             starSpacing="4px"
                         />
-                        <span className="text-sm text-gray-600">({review.rating}/5)</span>
+                        <span className="text-sm">({review.rating}/5)</span>
                     </div>
                 </div>
                 <div className="flex gap-2">
@@ -74,7 +74,7 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
                 </div>
             </div>
 
-            <p className="text-gray-700 mb-4 leading-relaxed">{review.reviewText}</p>
+            <p className="mb-4 leading-relaxed">{review.reviewText}</p>
 
             <div className="text-xs text-gray-500 border-t pt-3">
                 Reviewed on {formatDate(review.date)}
